@@ -17,8 +17,8 @@ inline std::tm getTimeStruct(int time_zone = 0, int64_t time_stamp = std::chrono
 {
     struct tm ret;
     auto seconds_since_epoch = time_stamp + time_zone * seconds_per_hour ;
-    auto days_since_epoch = static_cast<int>((seconds_since_epoch >= 0 ? seconds_since_epoch : seconds_since_epoch - (sec_per_day - 1)) / sec_per_day);
-    auto second_of_day = static_cast<int>(seconds_since_epoch - days_since_epoch * sec_per_day);
+    auto days_since_epoch = static_cast<int>(seconds_since_epoch / sec_per_day);
+    auto second_of_day = static_cast<int>(seconds_since_epoch % sec_per_day);
     auto days_since_mar_1st_0CE = days_since_epoch + days_from_mar_1st_0CE_to_epoch;
     auto quatercentenaries_since_mar_1st_0CE = (days_since_mar_1st_0CE >= 0 ? days_since_mar_1st_0CE : days_since_mar_1st_0CE - (days_per_quatercentenary - 1)) / days_per_quatercentenary;
     auto day_of_quatercentenary = days_since_mar_1st_0CE - quatercentenaries_since_mar_1st_0CE * days_per_quatercentenary;  // [0, 146096]
@@ -27,7 +27,7 @@ inline std::tm getTimeStruct(int time_zone = 0, int64_t time_stamp = std::chrono
     auto month_of_year = (5 * day_of_year + 2) / 153;  // [0, 11]
     ret.tm_mday = day_of_year - (153 * month_of_year + 2) / 5 + 1;  // [1, 31]
     ret.tm_mon = (month_of_year + 2) % 12;  // [2, 11] Union [0, 1]
-    ret.tm_year = static_cast<int>(year_of_quatercentenary) + static_cast<int>(quatercentenaries_since_mar_1st_0CE * 400) + (ret.tm_mon < 2) - 1900;
+    ret.tm_year = static_cast<int>(year_of_quatercentenary) + quatercentenaries_since_mar_1st_0CE * 400 + (ret.tm_mon < 2) - 1900;
     ret.tm_hour = second_of_day / seconds_per_hour;
     ret.tm_min = (second_of_day % seconds_per_hour) / seconds_per_minute;
     ret.tm_sec = (second_of_day % seconds_per_minute);
